@@ -261,9 +261,7 @@
                 <div id="tokenDisplay" class="token-box">No token yet. Register or Login above!</div>
             </div>
 
-            <div class="explanation">
-                💡 <strong>Interview Point:</strong> Notice how logging out only requires discarding the token on client side! No server session table needs to be purged because JWT is <strong>stateless</strong>.
-            </div>
+
         </div>
 
         <!-- REST API CRUD SECTION -->
@@ -297,9 +295,7 @@
                 <button class="btn-danger" onclick="deleteTask()"><span class="method-badge m-delete">DELETE</span> Delete</button>
             </div>
 
-            <div class="explanation">
-                💡 <strong>The PATCH Interview Question:</strong> Click <code>PATCH</code> to update ONLY the title/status without touching the description. Unlike <code>PUT</code> which overwrites all fields, <code>PATCH</code> modifies only what you send!
-            </div>
+
         </div>
     </div>
 
@@ -453,9 +449,13 @@
 
     async function patchTask() {
         const id = document.getElementById("taskId").value;
+        const title = document.getElementById("taskTitle").value;
+        const description = document.getElementById("taskDesc").value;
         const completed = document.getElementById("taskCompleted").checked;
-        // Notice: Only sending "completed", omitting title and description!
+
         const patchPayload = { completed: completed };
+        if (title && title.trim() !== "") patchPayload.title = title;
+        if (description && description.trim() !== "") patchPayload.description = description;
 
         try {
             const res = await fetch("/api/tasks/" + id, {
@@ -464,7 +464,7 @@
                 body: JSON.stringify(patchPayload)
             });
             const data = await res.json();
-            logResponse(`PATCH /api/tasks/${id} (Only patched 'completed' status, kept rest unchanged!)`, res.status, data);
+            logResponse(`PATCH /api/tasks/${id} (Partial Update applied)`, res.status, data);
         } catch (e) {
             logResponse(`PATCH /api/tasks/${id}`, "ERROR", { error: e.message });
         }
