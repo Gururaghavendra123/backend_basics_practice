@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Backend Project - REST API & JWT Auth Interactive Console</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0b0f19;
+            --surface: #111827;
+            --surface-card: #1f2937;
+            --border: #374151;
+            --primary: #3b82f6;
+            --primary-hover: #2563eb;
+            --accent: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --purple: #8b5cf6;
+            --text: #f9fafb;
+            --text-muted: #9ca3af;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            padding: 24px;
+            line-height: 1.5;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 16px;
+            margin-bottom: 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        header h1 {
+            font-size: 1.5rem;
+            color: #60a5fa;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .badge {
+            font-size: 0.75rem;
+            padding: 4px 8px;
+            border-radius: 9999px;
+            background: rgba(59, 130, 246, 0.2);
+            color: #93c5fd;
+            border: 1px solid rgba(59, 130, 246, 0.4);
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        @media (max-width: 800px) {
+            .grid { grid-template-columns: 1fr; }
+        }
+
+        .card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.4);
+        }
+
+        .card h2 {
+            font-size: 1.15rem;
+            margin-bottom: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 8px;
+        }
+
+        label {
+            display: block;
+            font-size: 0.82rem;
+            font-weight: 500;
+            margin-bottom: 5px;
+            color: var(--text-muted);
+        }
+
+        input, textarea {
+            width: 100%;
+            background: #0d1322;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            color: var(--text);
+            padding: 8px 12px;
+            font-size: 0.9rem;
+            margin-bottom: 12px;
+            font-family: inherit;
+        }
+
+        input:focus, textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-top: 6px;
+        }
+
+        button {
+            cursor: pointer;
+            padding: 8px 16px;
+            border-radius: 6px;
+            border: none;
+            font-weight: 600;
+            font-size: 0.85rem;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-blue { background: var(--primary); color: white; }
+        .btn-blue:hover { background: var(--primary-hover); }
+
+        .btn-green { background: var(--accent); color: white; }
+        .btn-green:hover { background: #059669; }
+
+        .btn-amber { background: var(--warning); color: #111; }
+        .btn-amber:hover { background: #d97706; }
+
+        .btn-purple { background: var(--purple); color: white; }
+        .btn-purple:hover { background: #7c3aed; }
+
+        .btn-danger { background: var(--danger); color: white; }
+        .btn-danger:hover { background: #dc2626; }
+
+        .token-box {
+            background: #050811;
+            border: 1px solid #1e293b;
+            border-radius: 8px;
+            padding: 12px;
+            font-family: 'Fira Code', monospace;
+            font-size: 0.78rem;
+            word-break: break-all;
+            color: #34d399;
+            margin-top: 10px;
+            max-height: 90px;
+            overflow-y: auto;
+        }
+
+        .console {
+            background: #030712;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 14px;
+            font-family: 'Fira Code', monospace;
+            font-size: 0.82rem;
+            min-height: 250px;
+            max-height: 380px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            color: #93c5fd;
+            margin-top: 10px;
+        }
+
+        .status-pill {
+            font-size: 0.75rem;
+            font-weight: 700;
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+        .s-200, .s-201, .s-204 { background: #064e3b; color: #6ee7b7; }
+        .s-400, .s-401, .s-403, .s-404 { background: #7f1d1d; color: #fca5a5; }
+
+        .method-badge {
+            font-weight: 700;
+            font-size: 0.72rem;
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+        .m-get { background: #065f46; color: #a7f3d0; }
+        .m-post { background: #1e40af; color: #bfdbfe; }
+        .m-put { background: #92400e; color: #fde68a; }
+        .m-patch { background: #5b21b6; color: #ddd6fe; }
+        .m-delete { background: #991b1b; color: #fecaca; }
+
+        .explanation {
+            font-size: 0.8rem;
+            color: #94a3b8;
+            margin-top: 8px;
+            background: #172033;
+            padding: 8px 12px;
+            border-left: 3px solid #3b82f6;
+            border-radius: 0 6px 6px 0;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <header>
+        <div>
+            <h1>Backend Project API Console <span class="badge">Spring Boot 3 + PostgreSQL</span></h1>
+            <p style="color: var(--text-muted); font-size: 0.85rem; margin-top: 4px;">
+                <em>"Developed REST API backend services using Java with PostgreSQL integration & JWT authentication"</em>
+            </p>
+        </div>
+        <div>
+            <span id="activeUserBadge" class="badge" style="display:none; background:#065f46; color:#a7f3d0;">Logged in: <span id="activeUsername"></span></span>
+        </div>
+    </header>
+
+    <div class="grid">
+        <!-- AUTH SECTION -->
+        <div class="card">
+            <h2>🔑 1. Authentication (Public Routes)</h2>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                <div>
+                    <label>Username</label>
+                    <input type="text" id="authUsername" value="guru_dev">
+                </div>
+                <div>
+                    <label>Email</label>
+                    <input type="email" id="authEmail" value="guru@cruzule.com">
+                </div>
+            </div>
+            <div>
+                <label>Password</label>
+                <input type="password" id="authPassword" value="Secret123">
+            </div>
+
+            <div class="btn-group">
+                <button class="btn-blue" onclick="registerUser()"><span class="method-badge m-post">POST</span> Register User</button>
+                <button class="btn-green" onclick="loginUser()"><span class="method-badge m-post">POST</span> Login & Get JWT</button>
+                <button class="btn-danger" onclick="clearToken()">Logout (Drop Token)</button>
+            </div>
+
+            <div style="margin-top: 12px;">
+                <label>Active JWT Token (Sent in <code>Authorization: Bearer &lt;token&gt;</code>):</label>
+                <div id="tokenDisplay" class="token-box">No token yet. Register or Login above!</div>
+            </div>
+
+            <div class="explanation">
+                💡 <strong>Interview Point:</strong> Notice how logging out only requires discarding the token on client side! No server session table needs to be purged because JWT is <strong>stateless</strong>.
+            </div>
+        </div>
+
+        <!-- REST API CRUD SECTION -->
+        <div class="card">
+            <h2>📦 2. Protected REST Endpoints (CRUD)</h2>
+            <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 10px;">
+                <div>
+                    <label>Task Title</label>
+                    <input type="text" id="taskTitle" value="Fix JWT filter chain">
+                </div>
+                <div>
+                    <label>Task ID (for PUT/PATCH/DELETE)</label>
+                    <input type="number" id="taskId" value="1">
+                </div>
+            </div>
+            <div>
+                <label>Task Description</label>
+                <input type="text" id="taskDesc" value="Add OncePerRequestFilter before UsernamePasswordAuthenticationFilter">
+            </div>
+            <div style="margin-bottom: 12px;">
+                <label style="display: inline-flex; align-items: center; gap: 8px; cursor: pointer;">
+                    <input type="checkbox" id="taskCompleted" style="width: auto; margin: 0;"> Completed status
+                </label>
+            </div>
+
+            <div class="btn-group">
+                <button class="btn-blue" onclick="getAllTasks()"><span class="method-badge m-get">GET</span> All Tasks</button>
+                <button class="btn-green" onclick="createTask()"><span class="method-badge m-post">POST</span> Create</button>
+                <button class="btn-amber" onclick="putTask()"><span class="method-badge m-put">PUT</span> Full Update</button>
+                <button class="btn-purple" onclick="patchTask()"><span class="method-badge m-patch">PATCH</span> Partial Update</button>
+                <button class="btn-danger" onclick="deleteTask()"><span class="method-badge m-delete">DELETE</span> Delete</button>
+            </div>
+
+            <div class="explanation">
+                💡 <strong>The PATCH Interview Question:</strong> Click <code>PATCH</code> to update ONLY the title/status without touching the description. Unlike <code>PUT</code> which overwrites all fields, <code>PATCH</code> modifies only what you send!
+            </div>
+        </div>
+    </div>
+
+    <!-- LIVE RESPONSE CONSOLE -->
+    <div class="card" style="margin-top: 20px;">
+        <h2>📡 Live HTTP Inspector (Status Code & Body)</h2>
+        <div id="consoleLog" class="console">Ready. Click any action above to test the REST endpoints and view live HTTP status codes.</div>
+    </div>
+</div>
+
+<script>
+    let activeToken = localStorage.getItem("jwt_token") || "";
+
+    if (activeToken) {
+        updateTokenDisplay(activeToken);
+    }
+
+    function updateTokenDisplay(token) {
+        activeToken = token;
+        localStorage.setItem("jwt_token", token);
+        const el = document.getElementById("tokenDisplay");
+        if (token) {
+            el.innerText = token;
+            el.style.color = "#34d399";
+        } else {
+            el.innerText = "No token stored. Register or Login to obtain JWT.";
+            el.style.color = "#9ca3af";
+            document.getElementById("activeUserBadge").style.display = "none";
+        }
+    }
+
+    function clearToken() {
+        updateTokenDisplay("");
+        logResponse("LOGOUT", 200, { message: "Token cleared from browser storage. Future requests will return 403 Forbidden!" });
+    }
+
+    function logResponse(method, status, data) {
+        const consoleEl = document.getElementById("consoleLog");
+        const timestamp = new Date().toLocaleTimeString();
+        let statusBadge = `<span class="status-pill ${status >= 200 && status < 300 ? 's-200' : 's-400'}">${status}</span>`;
+        
+        let formatted = `[${timestamp}] ${method} -> Status: ${status}\n` + JSON.stringify(data, null, 2);
+        consoleEl.innerText = formatted;
+    }
+
+    async function registerUser() {
+        const username = document.getElementById("authUsername").value;
+        const email = document.getElementById("authEmail").value;
+        const password = document.getElementById("authPassword").value;
+
+        try {
+            const res = await fetch("/api/auth/register", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ username, email, password })
+            });
+            const data = await res.json();
+            logResponse("POST /api/auth/register", res.status, data);
+            if (res.ok && data.token) {
+                updateTokenDisplay(data.token);
+                document.getElementById("activeUsername").innerText = data.username;
+                document.getElementById("activeUserBadge").style.display = "inline-block";
+            }
+        } catch (e) {
+            logResponse("POST /api/auth/register", "ERROR", { error: e.message });
+        }
+    }
+
+    async function loginUser() {
+        const username = document.getElementById("authUsername").value;
+        const password = document.getElementById("authPassword").value;
+
+        try {
+            const res = await fetch("/api/auth/login", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ username, password })
+            });
+            const data = await res.json();
+            logResponse("POST /api/auth/login", res.status, data);
+            if (res.ok && data.token) {
+                updateTokenDisplay(data.token);
+                document.getElementById("activeUsername").innerText = data.username;
+                document.getElementById("activeUserBadge").style.display = "inline-block";
+            }
+        } catch (e) {
+            logResponse("POST /api/auth/login", "ERROR", { error: e.message });
+        }
+    }
+
+    function getHeaders() {
+        const h = { "Content-Type": "application/json" };
+        if (activeToken) {
+            h["Authorization"] = "Bearer " + activeToken;
+        }
+        return h;
+    }
+
+    async function getAllTasks() {
+        try {
+            const res = await fetch("/api/tasks", {
+                method: "GET",
+                headers: getHeaders()
+            });
+            const data = res.status === 204 ? {} : await res.json();
+            logResponse("GET /api/tasks", res.status, data);
+        } catch (e) {
+            logResponse("GET /api/tasks", "ERROR", { error: e.message });
+        }
+    }
+
+    async function createTask() {
+        const title = document.getElementById("taskTitle").value;
+        const description = document.getElementById("taskDesc").value;
+        const completed = document.getElementById("taskCompleted").checked;
+
+        try {
+            const res = await fetch("/api/tasks", {
+                method: "POST",
+                headers: getHeaders(),
+                body: JSON.stringify({ title, description, completed })
+            });
+            const data = await res.json();
+            logResponse("POST /api/tasks (Status: 201 Created)", res.status, data);
+            if (data.id) {
+                document.getElementById("taskId").value = data.id;
+            }
+        } catch (e) {
+            logResponse("POST /api/tasks", "ERROR", { error: e.message });
+        }
+    }
+
+    async function putTask() {
+        const id = document.getElementById("taskId").value;
+        const title = document.getElementById("taskTitle").value;
+        const description = document.getElementById("taskDesc").value;
+        const completed = document.getElementById("taskCompleted").checked;
+
+        try {
+            const res = await fetch("/api/tasks/" + id, {
+                method: "PUT",
+                headers: getHeaders(),
+                body: JSON.stringify({ title, description, completed })
+            });
+            const data = await res.json();
+            logResponse(`PUT /api/tasks/${id} (Full Replace)`, res.status, data);
+        } catch (e) {
+            logResponse(`PUT /api/tasks/${id}`, "ERROR", { error: e.message });
+        }
+    }
+
+    async function patchTask() {
+        const id = document.getElementById("taskId").value;
+        const completed = document.getElementById("taskCompleted").checked;
+        // Notice: Only sending "completed", omitting title and description!
+        const patchPayload = { completed: completed };
+
+        try {
+            const res = await fetch("/api/tasks/" + id, {
+                method: "PATCH",
+                headers: getHeaders(),
+                body: JSON.stringify(patchPayload)
+            });
+            const data = await res.json();
+            logResponse(`PATCH /api/tasks/${id} (Only patched 'completed' status, kept rest unchanged!)`, res.status, data);
+        } catch (e) {
+            logResponse(`PATCH /api/tasks/${id}`, "ERROR", { error: e.message });
+        }
+    }
+
+    async function deleteTask() {
+        const id = document.getElementById("taskId").value;
+
+        try {
+            const res = await fetch("/api/tasks/" + id, {
+                method: "DELETE",
+                headers: getHeaders()
+            });
+            if (res.status === 204) {
+                logResponse(`DELETE /api/tasks/${id}`, 204, { message: `Task ${id} successfully deleted from PostgreSQL database! Status is 204 No Content.` });
+            } else {
+                const data = await res.json();
+                logResponse(`DELETE /api/tasks/${id}`, res.status, data);
+            }
+        } catch (e) {
+            logResponse(`DELETE /api/tasks/${id}`, "ERROR", { error: e.message });
+        }
+    }
+</script>
+</body>
+</html>
